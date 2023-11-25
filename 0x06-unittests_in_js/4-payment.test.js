@@ -1,24 +1,25 @@
-const { expect } = require('chai');
+const mocha = require('mocha');
+const { expect, assert } = require('chai');
 const sinon = require('sinon');
 
-const Utils = require('./utils');
+const utils = require('./utils');
 const sendPaymentRequestToApi = require('./3-payment');
+const { spy } = require('sinon');
 
 describe('sendPaymentRequestToApi', () => {
-  const consoleSpy = sinon.spy(console, 'log');
-  it('validates usage of Utils.calculateNumber', () => {
-    // Stub the function always return the same number 10
-    const calcNumStub = sinon.stub(Utils, 'calculateNumber').returns(10);
-    // run the function with the parameters
-    sendPaymentRequestToApi(100, 20);
-    // check that the stub is being called with type = SUM, a = 100, and b = 20
-    expect(calcNumStub.calledWith('SUM', 100, 20)).to.be.true;
-    // check that the stub always return the same number 10
-    expect(calcNumStub.alwaysReturned(10)).to.be.true;
-    // check with spy that console.log is logging the correct message 
-    expect(consoleSpy.calledWith('The total is: 10')).to.be.true;
+  it('should call calculateNumber', () => {
+    const stub = sinon.stub(utils, 'calculateNumber');
+    stub.returns(10)  
 
-    calcNumStub.restore();
-    consoleSpy.restore();
+    const spy = sinon.spy(console, 'log');
+
+    const apiRequestRes = sendPaymentRequestToApi(100, 20);
+
+    expect(stub.calledOnceWithExactly('SUM', 100, 20)).to.equal(true);
+    expect(spy.calledOnceWithExactly('The total is: 10'));
+    expect(utils.calculateNumber('SUM', 100, 20)).to.equal(apiRequestRes);
+
+    stub.restore();
+    spy.restore();
   });
 });
